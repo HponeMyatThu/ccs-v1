@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rust-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/db:/app/data/db
+      - ./data/images:/app/data/images
+    environment:
+      - DATABASE_URL=sqlite:/app/data/db/database.db
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-this-in-production}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-86400}
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      - UPLOAD_DIR=/app/data/images
+      - RUST_LOG=info
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
+  images-data:
