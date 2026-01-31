@@ -2,7 +2,7 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub sub: String,
     pub agent_id: i64,
@@ -10,9 +10,14 @@ pub struct Claims {
     pub iat: i64,
 }
 
-pub fn generate_token(agent_id: i64, agent_number: String, secret: &str, expiration: i64) -> Result<String, jsonwebtoken::errors::Error> {
+pub fn generate_token(
+    agent_id: i64,
+    agent_number: String,
+    secret: &str,
+    expires_in_seconds: i64,
+) -> Result<String, jsonwebtoken::errors::Error> {
     let now = Utc::now();
-    let expiration_time = now + Duration::seconds(expiration);
+    let expiration_time = now + Duration::seconds(expires_in_seconds);
 
     let claims = Claims {
         sub: agent_number,
@@ -22,18 +27,26 @@ pub fn generate_token(agent_id: i64, agent_number: String, secret: &str, expirat
     };
 
     encode(
-        &Header::default(),
+        &Header::default(), // HS256
         &claims,
-        &EncodingKey::from_secret(secret.as_ref()),
+        &EncodingKey::from_secret(secret.as_bytes()),
     )
 }
 
 pub fn decode_token(token: &str, secret: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
+    println!("decode_token() called");
+    println!("Token: {}", token);
+    println!("Secret length: {}", secret.len());
+
+    let validation = Validation::default(); // validates exp + iat
+
     let token_data = decode::<Claims>(
         token,
-        &DecodingKey::from_secret(secret.as_ref()),
-        &Validation::default(),
+        &DecodingKey::from_secret(secret.as_bytes()),
+        &validation,
     )?;
+
+    println!("Claims: {:?}", token_data.claims);
 
     Ok(token_data.claims)
 }

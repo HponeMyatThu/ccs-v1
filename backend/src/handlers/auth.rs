@@ -2,8 +2,9 @@ use actix_web::{web, HttpResponse, Responder};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use sqlx::SqlitePool;
 
-use crate::auth::jwt::generate_token;
-use crate::models::{Agent, AgentLogin, AgentCreate, AuthResponse, AgentInfo};
+use crate::auth::generate_token;
+use crate::models::{Agent, AgentLogin, AgentCreate};
+use crate::models::agent::{AuthResponse, AgentInfo};
 
 pub async fn login(
     pool: web::Data<SqlitePool>,

@@ -4,6 +4,8 @@ use sqlx::SqlitePool;
 use crate::auth::Claims;
 use crate::models::Agent;
 
+use actix_web::HttpMessage;
+
 pub async fn get_agents(pool: web::Data<SqlitePool>) -> impl Responder {
     let agents = sqlx::query_as::<_, Agent>("SELECT * FROM agents ORDER BY id DESC")
         .fetch_all(pool.get_ref())

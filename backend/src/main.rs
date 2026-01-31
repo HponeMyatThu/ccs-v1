@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let _database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let jwt_expiration: i64 = env::var("JWT_EXPIRATION")
         .unwrap_or_else(|_| "86400".to_string())
@@ -56,9 +56,9 @@ async fn main() -> std::io::Result<()> {
                     )
                     .service(
                         web::scope("/agents")
-                            .wrap(AuthMiddleware {
-                                jwt_secret: jwt_secret.clone(),
-                            })
+                            // .wrap(AuthMiddleware {
+                            //     jwt_secret: jwt_secret.clone(),
+                            // })
                             .route("", web::get().to(handlers::agent::get_agents))
                             .route("/me", web::get().to(handlers::agent::get_current_agent))
                             .route("/{id}", web::get().to(handlers::agent::get_agent))
@@ -67,9 +67,9 @@ async fn main() -> std::io::Result<()> {
                     )
                     .service(
                         web::scope("/pages")
-                            .wrap(AuthMiddleware {
-                                jwt_secret: jwt_secret.clone(),
-                            })
+                            // .wrap(AuthMiddleware {
+                            //     jwt_secret: jwt_secret.clone(),
+                            // })
                             .route("", web::post().to(handlers::page::create_page))
                             .route("", web::get().to(handlers::page::get_pages))
                             .route("/{id}", web::get().to(handlers::page::get_page))
@@ -78,9 +78,9 @@ async fn main() -> std::io::Result<()> {
                     )
                     .service(
                         web::scope("/contents")
-                            .wrap(AuthMiddleware {
-                                jwt_secret: jwt_secret.clone(),
-                            })
+                            // .wrap(AuthMiddleware {
+                            //     jwt_secret: jwt_secret.clone(),
+                            // })
                             .route("", web::post().to(handlers::content::create_content))
                             .route("", web::get().to(handlers::content::get_contents))
                             .route("/{id}", web::get().to(handlers::content::get_content))
@@ -90,22 +90,22 @@ async fn main() -> std::io::Result<()> {
                     )
                     .service(
                         web::scope("/images")
-                            .wrap(AuthMiddleware {
-                                jwt_secret: jwt_secret.clone(),
-                            })
+                            // .wrap(AuthMiddleware {
+                            //     jwt_secret: jwt_secret.clone(),
+                            // })
                             .route("/upload", web::post().to(handlers::image::upload_image))
                             .route("/{filename}", web::delete().to(handlers::image::delete_image))
                     )
                     .service(
                         web::scope("/search")
-                            .wrap(AuthMiddleware {
-                                jwt_secret: jwt_secret.clone(),
-                            })
+                            // .wrap(AuthMiddleware {
+                            //     jwt_secret: jwt_secret.clone(),
+                            // })
                             .route("", web::get().to(handlers::search::search_all))
                             .route("/pages", web::get().to(handlers::search::search_pages))
                             .route("/contents", web::get().to(handlers::search::search_contents))
                     )
-                    .route("/images/{filename}", web::get().to(handlers::image::get_image))
+                    .route("/pre-view/images/{filename}", web::get().to(handlers::image::get_image))
             )
     })
     .bind((server_host, server_port))?
