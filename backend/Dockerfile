@@ -1,18 +1,31 @@
-FROM rust:1.78 AS builder
+FROM rust:1.88-bookworm AS builder
 
 WORKDIR /usr/src/app
 
-COPY Cargo.toml ./
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY Cargo.toml Cargo.lock ./
+
+RUN mkdir src && \
+    echo "fn main() {println!(\"dummy\")}" > src/main.rs && \
+    cargo build --release && \
+    rm -f target/release/deps/backend*
+
 COPY src ./src
 COPY migrations ./migrations
 
-RUN cargo build --release
+RUN touch src/main.rs && cargo build --release
 
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -22,13 +35,13 @@ COPY --from=builder /usr/src/app/migrations /app/migrations
 
 RUN mkdir -p /app/data/db /app/data/images
 
-ENV DATABASE_URL=sqlite:/app/data/db/database.db
-ENV JWT_SECRET=your-secret-key-change-this-in-production
-ENV JWT_EXPIRATION=86400
-ENV SERVER_HOST=0.0.0.0
-ENV SERVER_PORT=8080
-ENV UPLOAD_DIR=/app/data/images
-ENV RUST_LOG=info
+ENV DATABASE_URL=sqlite:/app/data/db/database.db \
+    JWT_SECRET=replace-me-in-production \
+    JWT_EXPIRATION=86400 \
+    SERVER_HOST=0.0.0.0 \
+    SERVER_PORT=8080 \
+    UPLOAD_DIR=/app/data/images \
+    RUST_LOG=info
 
 EXPOSE 8080
 

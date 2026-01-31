@@ -5,11 +5,10 @@ use std::io::Write;
 use std::path::Path;
 use uuid::Uuid;
 
-pub async fn upload_image(
-    mut payload: Multipart,
-    upload_dir: web::Data<String>,
-) -> impl Responder {
-    let upload_path = Path::new(&**upload_dir);
+use crate::config::AppConfig;
+
+pub async fn upload_image(mut payload: Multipart, config: web::Data<AppConfig>) -> impl Responder {
+    let upload_path = Path::new(&config.upload_dir);
 
     if !upload_path.exists() {
         if let Err(_) = std::fs::create_dir_all(upload_path) {
@@ -30,16 +29,20 @@ pub async fn upload_image(
         };
 
         let content_disposition = field.content_disposition();
-        let original_filename = content_disposition
-            .get_filename()
-            .unwrap_or("unnamed");
+        let original_filename = content_disposition.get_filename().unwrap_or("unnamed");
 
         let extension = Path::new(original_filename)
             .extension()
             .and_then(|ext| ext.to_str())
             .unwrap_or("jpg");
 
-        let filename = format!("{}_{}.{}", Uuid::new_v4(), chrono::Utc::now().timestamp(), extension);
+        let filename = format!(
+            "{}_{}.{}",
+            Uuid::new_v4(),
+            chrono::Utc::now().timestamp(),
+            extension
+        );
+
         let sanitized_filename = sanitize_filename::sanitize(&filename);
         let filepath = upload_path.join(&sanitized_filename);
 
@@ -85,9 +88,9 @@ pub async fn upload_image(
 
 pub async fn delete_image(
     filename: web::Path<String>,
-    upload_dir: web::Data<String>,
+    config: web::Data<AppConfig>,
 ) -> impl Responder {
-    let filepath = Path::new(&**upload_dir).join(&*filename);
+    let filepath = Path::new(&config.upload_dir).join(&*filename);
 
     if !filepath.exists() {
         return HttpResponse::NotFound().json(serde_json::json!({
@@ -107,9 +110,9 @@ pub async fn delete_image(
 
 pub async fn get_image(
     filename: web::Path<String>,
-    upload_dir: web::Data<String>,
+    config: web::Data<AppConfig>,
 ) -> impl Responder {
-    let filepath = Path::new(&**upload_dir).join(&*filename);
+    let filepath = Path::new(&config.upload_dir).join(&*filename);
 
     if !filepath.exists() {
         return HttpResponse::NotFound().json(serde_json::json!({
@@ -127,9 +130,7 @@ pub async fn get_image(
                 _ => "application/octet-stream",
             };
 
-            HttpResponse::Ok()
-                .content_type(content_type)
-                .body(content)
+            HttpResponse::Ok().content_type(content_type).body(content)
         }
         Err(_) => HttpResponse::InternalServerError().json(serde_json::json!({
             "error": "Failed to read image"

@@ -3,14 +3,14 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use sqlx::SqlitePool;
 
 use crate::auth::generate_token;
-use crate::models::{Agent, AgentLogin, AgentCreate};
+use crate::config::AppConfig;
+use crate::models::{Agent, AgentCreate, AgentLogin};
 use crate::models::agent::{AuthResponse, AgentInfo};
 
 pub async fn login(
     pool: web::Data<SqlitePool>,
     credentials: web::Json<AgentLogin>,
-    jwt_secret: web::Data<String>,
-    jwt_expiration: web::Data<i64>,
+    config: web::Data<AppConfig>,
 ) -> impl Responder {
     let agent = sqlx::query_as::<_, Agent>(
         "SELECT * FROM agents WHERE agent_number = ? AND is_active = 1"
@@ -22,17 +22,21 @@ pub async fn login(
     match agent {
         Ok(Some(agent)) => {
             if verify(&credentials.password, &agent.password_hash).unwrap_or(false) {
-                match generate_token(agent.id, agent.agent_number.clone(), &jwt_secret, **jwt_expiration) {
+                match generate_token(
+                    agent.id,
+                    agent.agent_number.clone(),
+                    &config.jwt_secret,
+                    config.jwt_expiration,
+                ) {
                     Ok(token) => {
-                        let response = AuthResponse {
+                        HttpResponse::Ok().json(AuthResponse {
                             token,
                             agent: AgentInfo {
                                 id: agent.id,
                                 agent_number: agent.agent_number,
                                 is_active: agent.is_active,
                             },
-                        };
-                        HttpResponse::Ok().json(response)
+                        })
                     }
                     Err(_) => HttpResponse::InternalServerError().json(serde_json::json!({
                         "error": "Failed to generate token"
@@ -78,14 +82,11 @@ pub async fn register(
     .await;
 
     match result {
-        Ok(result) => {
-            let agent_id = result.last_insert_rowid();
-            HttpResponse::Created().json(serde_json::json!({
-                "id": agent_id,
-                "agent_number": agent_data.agent_number,
-                "is_active": is_active
-            }))
-        }
+        Ok(res) => HttpResponse::Created().json(serde_json::json!({
+            "id": res.last_insert_rowid(),
+            "agent_number": agent_data.agent_number,
+            "is_active": is_active
+        })),
         Err(e) => {
             if e.to_string().contains("UNIQUE constraint failed") {
                 HttpResponse::Conflict().json(serde_json::json!({

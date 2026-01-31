@@ -1,6 +1,6 @@
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpMessage, HttpResponse,
+    Error, HttpMessage,
 };
 use futures_util::future::LocalBoxFuture;
 use std::future::{ready, Ready};
@@ -58,19 +58,19 @@ where
                     println!("Token: {}", token);
                     println!("Secret: {}", self.jwt_secret);
 
-                    match decode_token(token, &self.jwt_secret) {
-                        Ok(claims) => {
-                            req.extensions_mut().insert(claims);
-                            let fut = self.service.call(req);
-                            return Box::pin(async move {
-                                let res = fut.await?;
-                                Ok(res)
-                            });
-                        }
+                match decode_token(token, &self.jwt_secret) {
+                    Ok(claims) => {
+                        req.extensions_mut().insert(claims);
+                        let fut = self.service.call(req);
+                        return Box::pin(async move {
+                            let res = fut.await?;
+                            Ok(res)
+                        });
+                    }
                         Err(_) => {
-                            return Box::pin(async move {
+                        return Box::pin(async move {
                                 Err(actix_web::error::ErrorUnauthorized("Invalid token"))
-                            });
+                        });
                         }
                     }
                 }
