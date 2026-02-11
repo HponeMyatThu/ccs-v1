@@ -1,13 +1,59 @@
-import React from 'react'
-import type { ChartConfiguration } from 'chart.js'
-
-export type ChildrenType = Readonly<{ children: React.ReactNode }>
-
-export type FileType = File & {
-  path?: string
-  preview?: string
-  formattedSize?: string
+export interface Agent {
+  id: number;
+  agent_number: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-export type ChartJSOptionsType = { data: ChartConfiguration['data']; options?: ChartConfiguration['options'] }
-export type VariantType = 'primary' | 'danger' | 'warning' | 'success' | 'info' | 'dark' | 'secondary' | 'purple' | 'light'
+export interface Page {
+  id: number;
+  page_name: string;
+  section_name: string;
+  lang: string;
+  content_type: string;
+  visible: boolean;
+  display_order: number;
+  attributes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Content {
+  id: number;
+  ref_id: number;
+  short_desc?: string;
+  long_desc?: string;
+  image_path?: string;
+  title?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LoginRequest {
+  agent_number: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  agent: Agent;
+}
+
+export interface CreatePageRequest {
+  page_name: string;
+  section_name: string;
+  lang: string;
+  content_type: string;
+  visible: boolean;
+  display_order: number;
+  attributes?: string;
+}
+
+export interface CreateContentRequest {
+  ref_id: number;
+  short_desc?: string;
+  long_desc?: string;
+  image_path?: string;
+  title?: string;
+}

@@ -1,12 +1,10 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { resolve } from 'node:path'
-// https://vite.dev/config/
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-    resolve: {
-        alias: {
-            "@": resolve(__dirname, "src"),
-        },
-    },
-})
+  optimizeDeps: {
+    exclude: ['lucide-react'],
+  },
+});
