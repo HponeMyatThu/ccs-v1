@@ -146,7 +146,7 @@ class ApiService {
     }
   }
 
-  async uploadImage(file: File): Promise<{ image_path: string }> {
+  async uploadImage(file: File): Promise<{ path: string }> {
     const formData = new FormData();
     formData.append('image', file);
 

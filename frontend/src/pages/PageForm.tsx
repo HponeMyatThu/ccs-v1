@@ -132,7 +132,7 @@ export default function PageForm({ page, onBack, onSuccess }: PageFormProps) {
         for (const image of content.images) {
           if (image.file) {
             const result = await apiService.uploadImage(image.file);
-            uploadedUrls.push(result.image_path);
+            uploadedUrls.push(result.path);
           } else if (image.url) {
             uploadedUrls.push(image.url);
           }
