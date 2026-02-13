@@ -6,11 +6,13 @@ import { Plus, Edit, Eye, EyeOff, LogOut, FileText } from "lucide-react";
 
 interface PagesListProps {
   onCreatePage: () => void;
+  onAgentSupportPage: () => void;
   onEditPage: (page: Page) => void;
 }
 
 export default function PagesList({
   onCreatePage,
+  onAgentSupportPage,
   onEditPage,
 }: PagesListProps) {
   const [pages, setPages] = useState<Page[]>([]);
@@ -75,7 +77,7 @@ export default function PagesList({
           </div>
           <div className="flex gap-2">
             <button
-              onClick={onCreatePage}
+              onClick={onAgentSupportPage}
               className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10"
             >
               View Agent Support portal
