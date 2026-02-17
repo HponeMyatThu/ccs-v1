@@ -32,28 +32,23 @@ class ApiService {
     return response.json();
   }
 
-  async getPages(): Promise<Page[]> {
-    const response = await fetch(`${API_BASE_URL}/pages`, {
-      headers: this.getHeaders(true),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch pages');
-    }
-
-    return response.json();
+async getPages(sectionName?: string): Promise<Page[]> {
+  const url = new URL(`${API_BASE_URL}/pages`);
+  if (sectionName) {
+    url.searchParams.append('section_name', sectionName);
   }
-  async getPagesBySection(sectionName: string): Promise<Page[]> {
-    const response = await fetch(`${API_BASE_URL}/pages/section/${sectionName}`, {
-      headers: this.getHeaders(true),
-    });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch pages for section: ${sectionName}`);
-    }
+  const response = await fetch(url.toString(), {
+    headers: this.getHeaders(true),
+  });
 
-    return response.json();
+  if (!response.ok) {
+    throw new Error('Failed to fetch pages');
   }
+
+  return response.json();
+}
+
   async getPage(id: number): Promise<Page> {
     const response = await fetch(`${API_BASE_URL}/pages/${id}`, {
       headers: this.getHeaders(true),

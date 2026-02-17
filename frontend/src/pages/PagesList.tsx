@@ -27,7 +27,7 @@ export default function PagesList({
   const loadPages = async () => {
     try {
       setLoading(true);
-      const data = await apiService.getPages();
+      const data = await apiService.getPages("LP");
       setPages(data);
       setError("");
     } catch (err) {

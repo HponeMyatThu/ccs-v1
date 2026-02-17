@@ -32,7 +32,7 @@ export default function AgentSupportList({
 
   const loadPages = async () => {
     try {
-      const data = await apiService.getPagesBySection("AS");
+      const data = await apiService.getPages("AS");
       setPages(data);
     } catch (err) {
       console.error("Failed to fetch pages", err);
