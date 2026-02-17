@@ -43,7 +43,17 @@ class ApiService {
 
     return response.json();
   }
+  async getPagesBySection(sectionName: string): Promise<Page[]> {
+    const response = await fetch(`${API_BASE_URL}/pages/section/${sectionName}`, {
+      headers: this.getHeaders(true),
+    });
 
+    if (!response.ok) {
+      throw new Error(`Failed to fetch pages for section: ${sectionName}`);
+    }
+
+    return response.json();
+  }
   async getPage(id: number): Promise<Page> {
     const response = await fetch(`${API_BASE_URL}/pages/${id}`, {
       headers: this.getHeaders(true),

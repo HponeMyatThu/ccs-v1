@@ -72,7 +72,30 @@ pub async fn get_page(
         })),
     }
 }
+pub async fn search_by_section(
+    pool: web::Data<SqlitePool>,
+    section_path: web::Path<String>,
+) -> impl Responder {
+    let section_name = section_path.into_inner();
 
+    let pages = sqlx::query_as::<_, Page>(
+        "SELECT * FROM pages WHERE section_name = ? ORDER BY display_order, id DESC"
+    )
+    .bind(*section_name) // Bind the string
+    .fetch_all(pool.get_ref())
+    .await;
+
+    match pages {
+        // If successful, return the list (even if empty [])
+        Ok(pages) => HttpResponse::Ok().json(pages),
+        Err(e) => {
+            eprintln!("Database error: {:?}", e);
+            HttpResponse::InternalServerError().json(serde_json::json!({
+                "error": "Failed to fetch pages for this section"
+            }))
+        }
+    }
+}
 pub async fn update_page(
     pool: web::Data<SqlitePool>,
     page_id: web::Path<i64>,

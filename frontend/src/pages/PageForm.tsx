@@ -71,7 +71,9 @@ export default function PageForm({ page, onBack, onSuccess }: PageFormProps) {
   const addContent = () => {
     setContents([...contents, { title: '', short_desc: '', long_desc: '', images: [] }]);
   };
-
+  const addimage = () => {
+    setContents([...contents, { title: '', short_desc: '', long_desc: '', images: [] }]);
+  };
   const removeContent = (index: number) => {
     setContents(contents.filter((_, i) => i !== index));
   };
@@ -214,19 +216,22 @@ export default function PageForm({ page, onBack, onSuccess }: PageFormProps) {
                 />
               </div>
 
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Section Name <span className="text-red-500">*</span>
+                  Section Name
                 </label>
-                <input
-                  type="text"
+                <select
                   value={sectionName}
                   onChange={(e) => setSectionName(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent bg-white appearance-none cursor-pointer"
                   required
-                  maxLength={10}
-                />
+                > 
+                  <option value="AS" selected>Agent Support</option>
+                  <option value="LP">Landing Page</option>
+                </select>
               </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -369,6 +374,7 @@ export default function PageForm({ page, onBack, onSuccess }: PageFormProps) {
 
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">Images</label>
+                      
                       <div className="space-y-3">
                         {content.images.map((image, imageIndex) => (
                           <div key={imageIndex} className="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200">

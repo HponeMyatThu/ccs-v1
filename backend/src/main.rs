@@ -74,6 +74,7 @@ async fn main() -> std::io::Result<()> {
                             .route("", web::post().to(handlers::page::create_page))
                             .route("", web::get().to(handlers::page::get_pages))
                             .route("/{id}", web::get().to(handlers::page::get_page))
+                            .route("/section/{section_name}", web::get().to(handlers::page::search_by_section))
                             .route("/{id}", web::put().to(handlers::page::update_page))
                             .route("/{id}", web::delete().to(handlers::page::delete_page)),
                     )
@@ -110,6 +111,7 @@ async fn main() -> std::io::Result<()> {
                             })
                             .route("", web::get().to(handlers::search::search_all))
                             .route("/pages", web::get().to(handlers::search::search_pages))
+                           
                             .route(
                                 "/contents",
                                 web::get().to(handlers::search::search_contents),

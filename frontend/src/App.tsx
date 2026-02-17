@@ -82,7 +82,7 @@ if (view === "agent_list") {
     <AgentSupportList 
       onCreatePage={handleCreatePage}
       onEditPage={handleEditPage}
-      onBackAgentPage={handleAgentSupportPage}
+      onBackAgentPage={handleBack}
       onDetailPage={handleViewDetail}
     />
   );
